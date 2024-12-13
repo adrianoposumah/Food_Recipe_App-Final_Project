@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:foodrecipeapp/Colors/colors.dart';
-// import 'package:foodrecipeapp/Models/categories_recipe.dart';
+import 'package:foodrecipeapp/Models/categories_recipe.dart';
 import 'package:foodrecipeapp/Models/recipe_model.dart';
 import 'package:foodrecipeapp/Views/items_details_screens.dart';
 import 'package:iconsax/iconsax.dart';
@@ -126,6 +126,32 @@ class _HomeScreenRecipeState extends State<HomeScreenRecipe> {
             const SizedBox(height: 20),
             headerParts(),
             const SizedBox(height: 30),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Categories",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    "See all",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.green,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            categoryItems(),
+            const SizedBox(height: 20),
             mySearchField(),
             const SizedBox(height: 20),
             if (isSearching)
@@ -367,6 +393,44 @@ class _HomeScreenRecipeState extends State<HomeScreenRecipe> {
                       : const SizedBox(),
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  SingleChildScrollView categoryItems() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(
+          recipeCategory.length,
+          (index) => Padding(
+            padding: index == 0
+                ? const EdgeInsets.only(left: 20, right: 20)
+                : const EdgeInsets.only(right: 20),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 33,
+                  backgroundColor: recipeCategory[index].color,
+                  child: Image.asset(
+                    recipeCategory[index].image,
+                    height: 40,
+                    width: 40,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  recipeCategory[index].name,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                )
+              ],
             ),
           ),
         ),
