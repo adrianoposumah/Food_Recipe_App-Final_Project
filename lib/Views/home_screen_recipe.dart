@@ -21,7 +21,10 @@ class _HomeScreenRecipeState extends State<HomeScreenRecipe> {
   int selectedPage = 0;
 
   List<RecipeItems> recipeItems = [];
+  List<RecipeItems> searchResults = [];
+  String _searchText = "";
   bool isLoading = true;
+  bool isSearching = false;
 
   List<IconData> icons = [
     Iconsax.home1,
@@ -47,17 +50,69 @@ class _HomeScreenRecipeState extends State<HomeScreenRecipe> {
           recipeItems.add(RecipeItems(
             image: meal['strMealThumb'] ?? '',
             name: meal['strMeal'] ?? '',
-            fav: false, // Default value
+            fav: false,
             category: meal['strCategory'] ?? '',
             area: meal['strArea'] ?? '',
-            instructions: meal['strInstructions'] ?? '', id: '', tags: [],
-            youtube: '', ingredients: {},
+            instructions: meal['strInstructions'] ?? '',
+            id: '',
+            tags: [],
+            youtube: '',
+            ingredients: {},
           ));
         });
       }
     }
     setState(() {
       isLoading = false;
+    });
+  }
+
+  Future<void> searchRecipes(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        isSearching = false;
+        searchResults.clear();
+      });
+      return;
+    }
+
+    setState(() {
+      isSearching = true;
+    });
+
+    final response = await http.get(
+      Uri.parse('https://www.themealdb.com/api/json/v1/1/search.php?s=$query'),
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['meals'] != null) {
+        final results = (data['meals'] as List).map((meal) {
+          return RecipeItems(
+            image: meal['strMealThumb'] ?? '',
+            name: meal['strMeal'] ?? '',
+            fav: false,
+            category: meal['strCategory'] ?? '',
+            area: meal['strArea'] ?? '',
+            instructions: meal['strInstructions'] ?? '',
+            id: '',
+            tags: [],
+            youtube: '',
+            ingredients: {},
+          );
+        }).toList();
+
+        setState(() {
+          searchResults = results;
+        });
+      } else {
+        setState(() {
+          searchResults.clear();
+        });
+      }
+    }
+
+    setState(() {
+      isSearching = false;
     });
   }
 
@@ -72,75 +127,82 @@ class _HomeScreenRecipeState extends State<HomeScreenRecipe> {
             headerParts(),
             const SizedBox(height: 30),
             mySearchField(),
-            const SizedBox(height: 40),
-            // Category
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Categories",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+            const SizedBox(height: 20),
+            if (isSearching)
+              const Expanded(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_searchText.isNotEmpty)
+              Expanded(
+                child: searchResults.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: searchResults.length,
+                        itemBuilder: (context, index) {
+                          final recipe = searchResults[index];
+                          return ListTile(
+                            leading: recipe.image.startsWith('http')
+                                ? Image.network(
+                                    recipe.image,
+                                    height: 50,
+                                    width: 50,
+                                    fit: BoxFit.cover,
+                                  )
+                                : const Icon(Icons.fastfood),
+                            title: Text(recipe.name),
+                            subtitle:
+                                Text("${recipe.category} | ${recipe.area}"),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      ItemsDetailsScreens(recipeItems: recipe),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      )
+                    : const Center(child: Text("No recipes found")),
+              )
+            else
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Recommendations",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  Text(
-                    "See all",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.green,
-                      fontWeight: FontWeight.w500,
+                    Text(
+                      "See all",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.green,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: 10),
-            categoryItems(),
-            const SizedBox(height: 30),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Recommendations",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    "See all",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.green,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            isLoading
-                ? const Expanded(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                : Expanded(
-                    child: GridView.builder(
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, // Jumlah kolom
-                        crossAxisSpacing: 10, // Jarak antar kolom
-                        mainAxisSpacing: 10, // Jarak antar baris
-                        childAspectRatio: 2.5 / 2.5, // Rasio ukuran item
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 2.5 / 2.5,
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: recipeItems.length > 8
-                          ? 8
-                          : recipeItems.length, // Maksimal 8 item
+                      itemCount: recipeItems.length,
                       itemBuilder: (context, index) {
                         final recipe = recipeItems[index];
                         return GestureDetector(
@@ -161,7 +223,7 @@ class _HomeScreenRecipeState extends State<HomeScreenRecipe> {
                                     ? NetworkImage(recipe.image)
                                         as ImageProvider
                                     : const AssetImage(
-                                        'assets/placeholder.png'), // Placeholder jika URL kosong
+                                        'assets/placeholder.png'),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -230,7 +292,7 @@ class _HomeScreenRecipeState extends State<HomeScreenRecipe> {
                         );
                       },
                     ),
-                  ),
+            ),
             const SizedBox(height: 80),
           ],
         ),
@@ -312,46 +374,16 @@ class _HomeScreenRecipeState extends State<HomeScreenRecipe> {
     );
   }
 
-  SingleChildScrollView categoryItems() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: List.generate(
-          recipeCategory.length,
-          (index) => Padding(
-            padding: index == 0
-                ? const EdgeInsets.only(left: 20, right: 20)
-                : const EdgeInsets.only(right: 20),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 33,
-                  backgroundColor: recipeCategory[index].color,
-                  child: Image.asset(
-                    recipeCategory[index].image,
-                    height: 40,
-                    width: 40,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  recipeCategory[index].name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Padding mySearchField() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextField(
+        onChanged: (value) {
+          setState(() {
+            _searchText = value;
+          });
+          searchRecipes(value);
+        },
         decoration: InputDecoration(
           filled: true,
           fillColor: Colors.white,
