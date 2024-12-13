@@ -4,9 +4,9 @@
 
 <h1>Anggota Kelompok</h1>
 
-- Adriano Posumah
-- Elroi Rangian
-- Hizkia Polii
+- Adriano Putra Imanuel Posumah (220211060053)
+- Rangian Elroi Johanes (220211060053)
+- Hizkia Nathanael Polii (220211060081)
 
 <h1>Deskripsi Aplikasi</h1>
 
