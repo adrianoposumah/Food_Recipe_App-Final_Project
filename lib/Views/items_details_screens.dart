@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '/Models/ingredients.dart'; // Pastikan import ingredients.dart
+import '/Models/ingredients.dart';
 import '/Models/recipe_model.dart';
-import '/Utils/utils.dart'; // Pastikan import Utils untuk splitInstructions
-import 'package:cached_network_image/cached_network_image.dart';
+import '/Utils/utils.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+// import 'package:cached_network_image/cached_network_image.dart';
 
 class ItemsDetailsScreens extends StatefulWidget {
   final RecipeItems recipeItems;
@@ -13,21 +14,22 @@ class ItemsDetailsScreens extends StatefulWidget {
 }
 
 class _ItemsDetailsScreensState extends State<ItemsDetailsScreens> {
-  late List<Ingredients> filteredIngredients = [];
+  final videoURL = 'https://www.youtube.com/watch?v=OaqvGvEiwzU';
+
+  late YoutubePlayerController _controller;
 
   @override
   void initState() {
-    super.initState();
-    filteredIngredients = getFilteredIngredients();
-  }
+    final videoID = YoutubePlayer.convertUrlToId(videoURL);
 
-  // Fungsi untuk memfilter bahan berdasarkan data dari recipe
-  List<Ingredients> getFilteredIngredients() {
-    // Menyaring ingredients yang ada di dalam recipe dan mencocokkannya dengan list ingredients
-    return ingredients
-        .where((ingredient) =>
-            widget.recipeItems.ingredients.keys.contains(ingredient.name))
-        .toList();
+    _controller = YoutubePlayerController(
+      initialVideoId: videoID!,
+      flags: const YoutubePlayerFlags(
+        autoPlay: false,
+        mute: false,
+      ),
+    );
+    super.initState();
   }
 
   @override
@@ -110,6 +112,17 @@ class _ItemsDetailsScreensState extends State<ItemsDetailsScreens> {
                         const Divider(
                             color: Colors.grey, thickness: 1, height: 0),
                         const SizedBox(height: 10),
+                        // Youtube Area Section
+                        YoutubePlayer(
+                          controller: _controller,
+                          showVideoProgressIndicator: true,
+                          progressIndicatorColor: Colors.amber,
+                          progressColors: const ProgressBarColors(
+                            playedColor: Colors.amber,
+                            handleColor: Colors.amberAccent,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
                         // Ingredients Section
                         const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,79 +137,35 @@ class _ItemsDetailsScreensState extends State<ItemsDetailsScreens> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        // Display filtered ingredients
-                        if (filteredIngredients.isEmpty)
-                          const Text(
-                            "No matching ingredients found",
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        if (filteredIngredients.isNotEmpty)
-                          GridView.builder(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: size.width ~/ 100,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              childAspectRatio: 1,
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: List.generate(
+                            ingredients.length,
+                            (index) => Column(
+                              children: [
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundColor: ingredients[index].color,
+                                  child: Image.asset(
+                                    ingredients[index].image,
+                                    height: 40,
+                                    width: 40,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  ingredients[index].name,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black38,
+                                  ),
+                                )
+                              ],
                             ),
-                            itemCount: filteredIngredients.length,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              final ingredient = filteredIngredients[index];
-                              return Column(
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      // Placeholder: Menampilkan nama ingredient sementara
-                                      CircleAvatar(
-                                        radius: 30,
-                                        backgroundColor: Colors.grey[200],
-                                        child: Text(
-                                          ingredient.name[
-                                              0], // Huruf pertama dari nama ingredient
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black45,
-                                          ),
-                                        ),
-                                      ),
-                                      // CachedNetworkImage untuk memuat gambar
-                                      CachedNetworkImage(
-                                        imageUrl: ingredient.image,
-                                        imageBuilder:
-                                            (context, imageProvider) =>
-                                                CircleAvatar(
-                                          radius: 30,
-                                          backgroundImage: imageProvider,
-                                        ),
-                                        placeholder: (context, url) =>
-                                            const SizedBox.shrink(),
-                                        errorWidget: (context, url, error) =>
-                                            const Icon(
-                                          Icons.error,
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  // Nama ingredient
-                                  Text(
-                                    ingredient.name,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black38,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
                           ),
+                        ),
                         const SizedBox(height: 20),
                         // Instructions Section
                         const Row(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 
 // Menu items untuk kategori makanan
 List<String> menuItems = [
@@ -67,30 +68,25 @@ class RecipeService {
   static const String _baseUrl =
       'https://www.themealdb.com/api/json/v1/1/random.php';
 
+  final Logger _logger = Logger('RecipeService');
+
   // Fetch single random recipe
   Future<RecipeItems?> fetchRandomRecipe() async {
     try {
+      _logger.info('Fetching random recipe...'); // Log the info message
       final response = await http.get(Uri.parse(_baseUrl));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        _logger.fine('Response Data: $data'); // Fine level logging
         if (data['meals'] != null && data['meals'].isNotEmpty) {
-          // Parse RecipeItems from the API response
-          final recipe = RecipeItems.fromJson(data['meals'][0]);
-
-          // Debugging: Print ingredients to verify if they are parsed correctly
-          // ignore: avoid_print
-          print('Ingredients for recipe "${recipe.name}":');
-          recipe.ingredients.forEach((key, value) {
-            // ignore: avoid_print
-            print('$key: $value');
-          });
-
-          return recipe;
+          return RecipeItems.fromJson(data['meals'][0]);
         }
+      } else {
+        _logger.warning(
+            'Failed to load recipe. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      // ignore: avoid_print
-      print('Error fetching recipe: $e');
+      _logger.severe('Error fetching recipe: $e'); // Severe level logging
     }
     return null;
   }

@@ -97,7 +97,7 @@ class _HomeScreenRecipeState extends State<HomeScreenRecipe> {
             id: '',
             tags: [],
             youtube: '',
-            ingredients: {},
+            ingredients: getIngredients(meal),
           );
         }).toList();
 
@@ -494,5 +494,21 @@ class _HomeScreenRecipeState extends State<HomeScreenRecipe> {
         ],
       ),
     );
+  }
+
+  Map<String, String> getIngredients(Map<String, dynamic> meal) {
+    Map<String, String> ingredients = {};
+    for (int i = 1; i <= 20; i++) {
+      String? ingredient = meal['strIngredient$i'];
+      String? measure = meal['strMeasure$i'];
+
+      if (ingredient != null &&
+          ingredient.isNotEmpty &&
+          measure != null &&
+          measure.isNotEmpty) {
+        ingredients[ingredient] = measure;
+      }
+    }
+    return ingredients;
   }
 }
