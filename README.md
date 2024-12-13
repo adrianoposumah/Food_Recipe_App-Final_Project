@@ -1,16 +1,42 @@
-# foodrecipeapp
+<h1>Food_Recipe_App-Kelompok AEH</h1>
 
-A new Flutter project.
+![naruhodo-i-see](https://github.com/user-attachments/assets/b80b775b-b334-43a6-9792-db764b2c3d12)
 
-## Getting Started
+<h1>Anggota Kelompok</h1>
 
-This project is a starting point for a Flutter application.
+- Adriano Putra Imanuel Posumah (220211060053)
+- Rangian Elroi Johanes (220211060111)
+- Hizkia Nathanael Polii (220211060081)
 
-A few resources to get you started if this is your first Flutter project:
+<h1>Deskripsi Aplikasi</h1>
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Food Recipe App adalah aplikasi yang menyediakan berbagai resep masakan lengkap dengan langkah-langkah detail, bahan-bahan, dan tips memasak, memudahkan pengguna untuk menciptakan hidangan lezat di rumah. 
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<h1>PREVIEW</h1>
+
+
+
+<h1>LINK GOOGLE DRIVE</h1>
+<a href="https://drive.google.com/file/d/1ydDfh4VsPNbg5BtV6DEj-TAFvijN6YhT/view?usp=sharing">Pencet Disini</a>
+
+<h1>FITUR APLIKASI</h1>
+
+- Pencarian Resep: Mencari resep berdasarkan bahan, kategori, atau tingkat kesulitan.
+- Instruksi Langkah-demi-Langkah: Menyediakan petunjuk memasak yang jelas dan mudah diikuti.
+
+<h1>PENGINSTALLAN</h1>
+
+1.  Download Apk Food Recipe App
+  `Download aplikasi melalui link google drive diatas`
+
+2.  Instal Apk
+  `Instal aplikasi Food Recipe App`
+
+3. Jalankan Apk
+   `Buka aplikasi yang telah di instal`
+
+<h1>PENGGUNAAN APLIKASI</h1>
+
+- Buka Apikasi Food Recipe App
+- Pilih resep yang ingin dibuat
+- Akan muncul informasi dari resep yang dipilih
